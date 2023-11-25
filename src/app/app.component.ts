@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { UsersService } from './services/users.service';
 
 @Component({
   selector: 'app-root',
@@ -7,4 +8,12 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'LoopBackAngularG5';
+  users!: any[];
+  constructor(private user: UsersService) { }
+
+  ngOnInit() {
+    this.user.getUsers().subscribe(users => {
+      this.users = users;
+    });
+  }
 }
