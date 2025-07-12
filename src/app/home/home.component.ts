@@ -16,16 +16,26 @@ export class HomeComponent {
   etat: boolean = true;
   currentProductLibelle!: any;
   currentProductQuantite!: any;
-  currentIdProduct!: any
+  currentIdProduct!: any;
   search!: any;
+  closeModal!: string;
 
   constructor(private produit: ProduitsService, private route: Router) { }
   ngOnInit(): void {
+    this.getProduits();
+  }
+  
+  getProduits() {
     this.produit.getProduits().subscribe(response => {
       this.produits = response;
       this.saveProduct = response;
       console.log(this.produits);
     });
+  }
+
+  resetField() {
+    this.libelle = '';
+    this.quantite = '';
   }
 
   addProduct() {
@@ -34,25 +44,39 @@ export class HomeComponent {
       quantite: this.quantite,
       etat: this.etat
     }
-    this.produit.postProduit(newProduct).subscribe(
-      (response) => {
-        console.log(response);
-        window.location.reload();
+    this.produit.postProduit(newProduct).subscribe({
+      next: (response) => {
+        if (response.status === 201) {
+          console.log(response.body.produit);
+          this.produits.push(response.body.produit);
+          this.resetField();
+        }
+      },
+      error: (error) => {
+        console.error('Erreur :', error);
+      },
+      complete: () => {
+        console.log('Ajout du produit terminé.');
       }
-    )
+    });
   }
   deleteProduct(id: any) {
-    this.produit.deleteProduit(id).subscribe(
-      response => {
-        console.log(`Suppression de ${response.libelle} reussie !`);
-      })
-    window.location.reload();
+    this.produit.deleteProduit(id).subscribe({
+      next: response => {
+        console.log(response.body.message);
+        console.log(response);
+        this.produits = this.produits.filter(p => p._id !== id);
+      },
+      error: error => {
+        console.log(error);
+      }
+    })
   }
 
   productModel(id: any) {
     this.produits.forEach(element => {
-      if (element.id == id) {
-        this.currentIdProduct = element.id;
+      if (element._id == id) {
+        this.currentIdProduct = element._id;
         this.currentProductLibelle = element.libelle;
         this.currentProductQuantite = element.quantite;
       }
@@ -65,12 +89,16 @@ export class HomeComponent {
       quantite: this.currentProductQuantite,
       etat: this.etat
     }
-    this.produit.putProduit(id, newProduct).subscribe(
-      response => {
-        console.log(`modification reussi : ${response}`);
-        window.location.reload()
+    this.produit.putProduit(id, newProduct).subscribe({
+      next: response => {
+        console.log(response);
+        this.produits[id] = { ...newProduct };
+        console.log(this.produits[id]);
+      },
+      error: error => {
+        console.log(error);
       }
-    )
+    });
   }
   
   searchProduct(): void {

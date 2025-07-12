@@ -48,8 +48,8 @@ export class LoginComponent implements OnInit {
   userConnect() {
     const emailPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+.[A-Za-z]{2,}$/;
     // Premiere vérification avec sweetalert 
-    if (this.email == "" ||  this.password == "" ) {
-      this.verifierChamps("Erreur!", "Vueillez renseigner les champs", "error");
+    if (this.email == "" ||  this.password == "" || !this.email ||  !this.password ) {
+      this.verifierChamps("Oops!", "Vueillez renseigner les champs", "warning");
     }
 
     else if (!this.email.match(emailPattern)) {
@@ -57,13 +57,15 @@ export class LoginComponent implements OnInit {
       this.verifierChamps("Erreur!", "Email invalide", "error");
     }
     else {
-      const autth = this.users.find(ele => ele.email == this.email && ele.password == this.password)
-      if (autth) {
-        this.route.navigate(['home']);
-        console.log(autth);
-        
-      } else {
-        console.log(('pas bon ca'));
+      // const autth = this.users.find(ele => ele.email == this.email && ele.password == this.password)
+      if (this.email == "andredembandione1@gmail.com" && this.password == "P@sser1234!") {
+        this.verifierChamps("Succès", "Connexion reussi", "success");
+        setTimeout(() => {
+          this.route.navigate(['home']);
+        }, 1000);
+      }
+      else {
+        this.verifierChamps('Erreur!', "Email ou mot de passe incorrecte!", "error");
       }
     }
   }
